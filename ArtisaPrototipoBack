@@ -1,11 +1,23 @@
+#####################################################################################################
+###########################           BIBLIOT DEL SISTEMA           #################################
+#####################################################################################################
+
 from datetime import datetime
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+import pyodbc
+
+
+
+
 
 #####################################################################################################
 ###########################           CLASES DEL SISTEMA           #################################
 #####################################################################################################
+
+
+
 
 
 # CONDUCTOR
@@ -52,9 +64,16 @@ class Reinstruccion:
         print(f"estado: {'Realizado' if self.realizado_bool else 'No realizado'}")
         print(f"correo_reinstructor: {self.correo_reinstructor}")
 
+
+
+
+
 #####################################################################################################
 ###########################           FUNCIONES DE CORREO           #################################
 #####################################################################################################
+
+
+
 
 
     def enviar_correo(self, smtp_server, smtp_port, remitente, password):
@@ -96,18 +115,41 @@ class Reinstruccion:
         except Exception as e:
             print(f"Error al enviar el correo: {e}")
 
-# Ejemplo de uso
-if __name__ == "__main__":
-    conductor = Conductor(id_conductor=1, nombre_conductor="Juan Pérez", cantidad_excesos=3)
-    reinstructor = Reinstructor(id_reinstructor=1, nombre_reinstructor="María López", nivel_reinstructor="Avanzado", correo_reinstructor="maria@example.com")
-    reinstruccion = Reinstruccion(id_reinstruccion=1, reinstructor=reinstructor, conductor=conductor)
 
-    reinstruccion.enviar_correo(
-        smtp_server="smtp.gmail.com",
-        smtp_port=587,
-        remitente="tu_correo@gmail.com",
-        password="tu_contraseña"
-    )
+
+
+
+#####################################################################################################
+###########################           CONEXION A LA BD              #################################
+#####################################################################################################
+
+
+
+
+
+#Conexión a la base de datos SQL Server
+def obtener_datos_bd():
+    try:
+        conn = pyodbc.connect('Driver={SQL Server};'
+                              'Server=TU_SERVIDOR;'
+                              'Database=TU_BASE_DE_DATOS;'
+                              'UID=TU_USUARIO;'
+                              'PWD=TU_CONTRASEÑA;')
+        cursor = conn.cursor()
+
+        cursor.execute('SELECT * FROM Conductores')
+        conductores = [Conductor(row.id_conductor, row.nombre_conductor, row.cantidad_excesos) for row in cursor.fetchall()]
+
+        cursor.execute('SELECT * FROM Reinstructores')
+        reinstructores = [Reinstructor(row.id_reinstructor, row.nombre_reinstructor, row.nivel_reinstructor, row.correo_reinstructor) for row in cursor.fetchall()]
+
+        return conductores, reinstructores
+    except Exception as e:
+        print(f"Error al conectar a la base de datos: {e}")
+        return [], []
+    finally:
+        conn.close()
+
 
 
 
