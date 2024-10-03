@@ -1,0 +1,78 @@
+from datetime import datetime
+
+# CONDUCTOR
+class Conductor:
+    def __init__(self, id_conductor, nombre_conductor, cantidad_excesos):
+        self.id_conductor = id_conductor
+        self.nombre_conductor = nombre_conductor
+        self.cantidad_excesos = cantidad_excesos
+
+# REINSTRUCTOR
+class Reinstructor:
+    def __init__(self, id_reinstructor, nombre_reinstructor, nivel_reinstructor):
+        self.id_reinstructor = id_reinstructor
+        self.nombre_reinstructor = nombre_reinstructor
+        self.nivel_reinstructor = nivel_reinstructor
+
+# REINSTRUCCION
+class Reinstruccion:
+    def __init__(self, id_reinstruccion, reinstructor, conductor, fecha_asignacion, realizado_bool=False):
+        self.id_reinstruccion = id_reinstruccion
+        self.reinstructor = reinstructor
+        self.conductor = conductor
+        self.fecha_asignacion = datetime.now().strftime("%d/%m/%Y")  # Mantener la fecha con "/"
+        self.realizado_bool = realizado_bool
+    
+    # Método para generar el nombre basado en el formato especificado, eliminando las "/"
+    def generar_nombre(self):
+        # Reemplazar las barras "/" en la fecha para el nombre del archivo
+        fecha_sin_barras = self.fecha_asignacion.replace("/", "")
+        return f"{self.conductor.nombre_conductor}_{fecha_sin_barras}_{self.reinstructor.nombre_reinstructor}"
+    
+    # Método para verificar si el archivo existe (en esta versión siempre devuelve False)
+    def verificar_realizado(self):
+        # Aquí ya no se hace ninguna validación, siempre será False
+        self.realizado_bool = False
+
+    # Método para imprimir la reinstrucción
+    def imprimir(self):
+        print(f"conductor: {self.conductor.nombre_conductor}")
+        print(f"cant excesos: {self.conductor.cantidad_excesos}")
+        print(f"fecha: {self.fecha_asignacion}")  # Aquí mantendremos la fecha con "/"
+        print(f"a cargo de: {self.reinstructor.nombre_reinstructor}")
+        print(f"estado: {'Realizado' if self.realizado_bool else 'No realizado'}")
+
+# ------------------------
+# PARTE DEL TESTEO
+# ------------------------
+
+# Datos para el Conductor
+conductor_datos = {
+    'id_conductor': 1,
+    'nombre_conductor': 'Juan Perez',
+    'cantidad_excesos': 5
+}
+
+# Datos para el Reinstructor
+reinstructor_datos = {
+    'id_reinstructor': 10,
+    'nombre_reinstructor': 'Julio Delgado',
+    'nivel_reinstructor': 'Alto'
+}
+
+# Crear objetos con los datos obtenidos
+conductor1 = Conductor(**conductor_datos)
+reinstructor1 = Reinstructor(**reinstructor_datos)
+
+# Crear un objeto de Reinstruccion
+reinstruccion1 = Reinstruccion(1, reinstructor1, conductor1, datetime.now())
+
+# Imprimir el nombre que se generaría para el archivo, sin barras en la fecha
+nombre_archivo = reinstruccion1.generar_nombre()
+print(f"Nombre generado para el archivo: {nombre_archivo}.txt")
+
+# Verificar si el archivo ya existe (en esta versión no se valida)
+reinstruccion1.verificar_realizado()
+
+# Imprimir los detalles de la reinstrucción
+reinstruccion1.imprimir()
