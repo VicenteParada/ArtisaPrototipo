@@ -1,4 +1,12 @@
 from datetime import datetime
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+#####################################################################################################
+###########################           CLASES DEL SISTEMA           #################################
+#####################################################################################################
+
 
 # CONDUCTOR
 class Conductor:
@@ -9,10 +17,11 @@ class Conductor:
 
 # REINSTRUCTOR
 class Reinstructor:
-    def __init__(self, id_reinstructor, nombre_reinstructor, nivel_reinstructor):
+    def __init__(self, id_reinstructor, nombre_reinstructor, nivel_reinstructor, correo_reinstructor):
         self.id_reinstructor = id_reinstructor
         self.nombre_reinstructor = nombre_reinstructor
         self.nivel_reinstructor = nivel_reinstructor
+        self.correo_reinstructor = correo_reinstructor
 
 # REINSTRUCCION
 class Reinstruccion:
@@ -41,10 +50,72 @@ class Reinstruccion:
         print(f"fecha: {self.fecha_asignacion}")  # Aquí mantendremos la fecha con "/"
         print(f"a cargo de: {self.reinstructor.nombre_reinstructor}")
         print(f"estado: {'Realizado' if self.realizado_bool else 'No realizado'}")
+        print(f"correo_reinstructor: {self.correo_reinstructor}")
 
-# ------------------------
-# PARTE DEL TESTEO
-# ------------------------
+#####################################################################################################
+###########################           FUNCIONES DE CORREO           #################################
+#####################################################################################################
+
+
+    def enviar_correo(self, smtp_server, smtp_port, remitente, password):
+        asunto = "Reinstrucción Automática"
+        cuerpo = f"""
+        Estimado {self.reinstructor.nombre_reinstructor},
+
+        Esperando que se encuentre bien. Se le escribe para informar que hemos detectado un total de 
+        {self.conductor.cantidad_excesos} excesos del conductor {self.conductor.nombre_conductor}
+        asignado el dia {self.fecha_asignacion}.
+
+
+        Agradecemos tu comprensión y tu compromiso con la mejora continua.
+
+        Saludos cordiales,
+        Departamento de Prevencion de Riesgos ARTISA
+
+        Correo Automatizado NO RESPONDER
+
+        """
+
+        # Crear el mensaje
+        msg = MIMEMultipart()
+        msg['From'] = remitente
+        msg['To'] = self.reinstructor.correo_reinstructor
+        msg['Subject'] = asunto
+
+        # Agregar el cuerpo del correo
+        msg.attach(MIMEText(cuerpo, 'plain'))
+
+        try:
+            # Conectar al servidor SMTP
+            with smtplib.SMTP(smtp_server, smtp_port) as server:
+                server.starttls()  # Iniciar conexión segura
+                server.login(remitente, password)  # Iniciar sesión
+                server.send_message(msg)  # Enviar el mensaje
+
+            print("Correo enviado con éxito.")
+        except Exception as e:
+            print(f"Error al enviar el correo: {e}")
+
+# Ejemplo de uso
+if __name__ == "__main__":
+    conductor = Conductor(id_conductor=1, nombre_conductor="Juan Pérez", cantidad_excesos=3)
+    reinstructor = Reinstructor(id_reinstructor=1, nombre_reinstructor="María López", nivel_reinstructor="Avanzado", correo_reinstructor="maria@example.com")
+    reinstruccion = Reinstruccion(id_reinstruccion=1, reinstructor=reinstructor, conductor=conductor)
+
+    reinstruccion.enviar_correo(
+        smtp_server="smtp.gmail.com",
+        smtp_port=587,
+        remitente="tu_correo@gmail.com",
+        password="tu_contraseña"
+    )
+
+
+
+#####################################################################################################
+###########################           FUNCIONES DE TESTEO           #################################
+#####################################################################################################
+
+
 
 # Datos para el Conductor
 conductor_datos = {
